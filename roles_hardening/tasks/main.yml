@@ -1,0 +1,54 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Collecter les informations sur les paquets installés
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: Désactiver et arrêter telnet si installé
+  ansible.builtin.systemd:
+    name: telnetd
+    state: stopped
+    enabled: false
+  when: "'telnetd' in ansible_facts.packages"
+
+- name: Désactiver et arrêter vsftpd si installé
+  ansible.builtin.systemd:
+    name: vsftpd
+    state: stopped
+    enabled: false
+  when: "'vsftpd' in ansible_facts.packages"
+
+- name: Sauvegarder sshd_config avant modification
+  ansible.builtin.copy:
+    src: /etc/ssh/sshd_config
+    dest: /etc/ssh/sshd_config.bak
+    remote_src: true
+    force: false
+
+- name: Interdire le login root
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin no'
+  notify: restart sshd
+
+- name: Désactiver l'authentification par mot de passe
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PasswordAuthentication'
+    line: 'PasswordAuthentication no'
+  notify: restart sshd
+
+- name: Activer l'authentification par clé publique
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?PubkeyAuthentication'
+    line: 'PubkeyAuthentication yes'
+  notify: restart sshd
+
+---
+- name: restart sshd
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+# tasks file for roles_hardening
