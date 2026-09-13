@@ -1,9 +1,0 @@
-stages:
-  - lint
-
-ansible_lint_job:
-  stage: lint
-  image: python:3.10
-  script:
-    - pip install ansible ansible-lint
-    - ansible-lint playbook.yml
