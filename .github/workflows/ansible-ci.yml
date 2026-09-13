@@ -25,4 +25,4 @@ jobs:
 
       - name: Executer l'analyse de code (ansible-lint)
         run: |
-          ansible-lint playbook.yml
+          ansible-lint hardening_system.yml
