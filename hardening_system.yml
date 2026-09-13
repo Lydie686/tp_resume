@@ -1,15 +1,8 @@
 ---
 - name: Hardening de la securite systeme Linux
   hosts: dev
-  become: yes
+  become: true
   tasks:
-
-    - name: Desactiver le service Telnet s'il est installe
-      ansible.builtin.service:
-        name: telnet
-        state: stopped
-        enabled: no
-      ignore_errors: yes
 
     - name: Desactiver la connexion SSH en Root
       ansible.builtin.lineinfile:
